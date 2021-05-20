@@ -2,15 +2,29 @@
    <q-page class="auth row items-center justify-center q-pa-sm">
       <q-card class="auth__card q-px-xl q-py-lg">
          <q-card-section>
-            <h1 class="text-h4 q-mt-none q-mb-xl">Sign in</h1>
-            <q-form @submit.prevent="onSubmit" class="q-gutter-md column">
+            <h1 class="text-h4 q-mt-none q-mb-xl">Signup.</h1>
+            <q-form @submit.prevent="onSingup" class="q-gutter-md column">
                <q-input
                   autocorrect="off"
                   autocapitalize="off"
                   autocomplete="off"
                   spellcheck="false"
-                  v-model="email"
                   outlined
+                  v-model="name"
+                  label="full name"
+                  :rules="[
+                     (val) =>
+                        (val && val.length > 0) || 'full name is required',
+                  ]"
+               />
+
+               <q-input
+                  autocorrect="off"
+                  autocapitalize="off"
+                  autocomplete="off"
+                  spellcheck="false"
+                  outlined
+                  v-model="email"
                   label="email"
                   :rules="[
                      (val) => (val && val.length > 0) || 'email is required',
@@ -22,12 +36,13 @@
                   autocapitalize="off"
                   autocomplete="off"
                   spellcheck="false"
-                  v-model="password"
                   outlined
+                  v-model="password"
                   label="password"
                   :type="isPwd ? 'password' : 'text'"
                   :rules="[
                      (val) => (val && val.length > 0) || 'password is required',
+                     (val) => val.length >= 8 || 'password legth minimum 8',
                   ]"
                >
                   <template v-slot:append>
@@ -42,23 +57,20 @@
                <div class="q-mt-lg">
                   <q-btn
                      class="block full-width"
-                     label="Login"
+                     label="Signup"
                      type="submit"
                      color="primary"
                   />
                   <div class="column items-center q-mt-md">
                      <label>
-                        Don't have an account?
+                        Already have an account?
                         <router-link
-                           :to="{ path: 'signup' }"
+                           :to="{ path: 'signin' }"
                            class="text-weight-bold text-primary"
                         >
-                           Signup
+                           Signin
                         </router-link>
                      </label>
-                     <a class="text-weight-bold text-primary q-mt-sm">
-                        Forget password?
-                     </a>
                   </div>
                </div>
             </q-form>
@@ -68,38 +80,41 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { ref, defineComponent } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
-import { useRouter } from "vue-router";
+import { route } from "quasar/wrappers";
 
 export default defineComponent({
-   name: "login",
+   name: "signup",
    setup() {
       const $q = useQuasar();
-      const isPwd = ref(true);
-      const password = ref(null);
-      const email = ref(null);
       const store = useStore();
-      const router = useRouter();
+      const isPwd = ref(true);
+      const name = ref(null);
+      const email = ref(null);
+      const password = ref(null);
 
-      const onSubmit = async () => {
-         const result = await store.dispatch("authModel/signin", {
+      const onSingup = async () => {
+         console.log(1);
+         const result = await store.dispatch("authModel/signup", {
+            name: name.value,
             email: email.value,
             password: password.value,
          });
+         console.log(result);
          if (result && result.success) {
-            router.push("/");
+            route.push('')
          } else {
             $q.notify({
                type: "negative",
                position: "top",
-               message: result.message || "something broke!!",
+               message: result.error || result.errors.message || "something broke!!",
             });
          }
       };
 
-      return { isPwd, password, email, onSubmit };
+      return { isPwd, name, email, password, onSingup };
    },
 });
 </script>

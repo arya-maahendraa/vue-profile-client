@@ -3,6 +3,7 @@
       <div class="row q-py-md q-px-lg">
          <q-card class="col-9 my-card shadow-1">
             <q-card-section>
+               <h3>{{ user.name }}</h3>
                <q-table flat bordered :rows="rows" row-key="name" />
             </q-card-section>
          </q-card>
@@ -11,7 +12,8 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
+import { useStore } from "vuex";
 
 const rows = [
    {
@@ -319,7 +321,12 @@ const rows = [
 export default defineComponent({
    name: "PageIndex",
    setup() {
-      return { rows };
+      const store = useStore();
+      const user = computed(() => {
+         return store.state.authModel.user;
+      });
+      console.log(user);
+      return { rows, user };
    },
 });
 </script>
